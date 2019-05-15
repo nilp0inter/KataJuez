@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-g -Wall -O3 -fopenmp -pthread
+CFLAGS=-Wextra -O3 -fopenmp -pthread
 LDLIBS=-fopenmp -latomic
 
 juez: juez.c
