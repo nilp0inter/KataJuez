@@ -53,12 +53,12 @@ int main(int argc, char *argv[]) {
 
 	// One thread per processor core and one file chunk per thread
 	omp_set_num_threads(omp_get_num_procs());
-	size_t chunk = size/omp_get_num_procs();
-	if (chunk == 0) chunk = size;
+	size_t page = getpagesize();
+	size_t chunk = size < page ? page : size/omp_get_num_procs();
 
 	#pragma omp parallel for
 	for (size_t s=0; s<size; s+=chunk) {
-		int offset = s+chunk > size ? chunk-((s+chunk)-size) : chunk;
+		size_t offset = s+chunk > size ? chunk-((s+chunk)-size) : chunk;
 
 		// Force exit if the current chunk differs
 		if (memcmp(f1+s, f2+s, offset) != 0) _exit(EXIT_DIFF);
