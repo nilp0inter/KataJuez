@@ -36,6 +36,7 @@ int main(int argc, char *argv[]) {
 		if (f1s.st_size != f2s.st_size) return EXIT_DIFF;
 		size = f1s.st_size;
 	}
+	if (size == 0) return EXIT_EQUAL;  // Corner case
 
 	/**************************************************************
 	*                Do files differ in content?                 *
@@ -53,6 +54,7 @@ int main(int argc, char *argv[]) {
 	// One thread per processor core and one file chunk per thread
 	omp_set_num_threads(omp_get_num_procs());
 	size_t chunk = size/omp_get_num_procs();
+	if (chunk == 0) chunk = size;
 
 	#pragma omp parallel for
 	for (size_t s=0; s<size; s+=chunk) {
