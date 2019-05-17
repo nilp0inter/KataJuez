@@ -27,29 +27,29 @@ int main(int argc, char *argv[]) {
 	**************************************************************/
 	unsigned long size;
 	{
-		struct stat f1s;
-		struct stat f2s;
+		struct stat fs1;
+		struct stat fs2;
 
-		if (stat(argv[1], &f1s) < 0) { eexit("Cannot stat first file"); }
-		if (stat(argv[2], &f2s) < 0) { eexit("Cannot stat second file"); }
+		if (stat(argv[1], &fs1) < 0) { eexit("Cannot stat first file"); }
+		if (stat(argv[2], &fs2) < 0) { eexit("Cannot stat second file"); }
 
-		if (f1s.st_size != f2s.st_size) return EXIT_DIFF;
-		size = f1s.st_size;
+		if (fs1.st_size != fs2.st_size) return EXIT_DIFF;
+		size = fs1.st_size;
 	}
 	if (size == 0) return EXIT_EQUAL;  // Corner case
 
 	/**************************************************************
 	*                Do files differ in content?                 *
 	**************************************************************/
-	int fh1 = open(argv[1], O_RDWR, 0);
-	if (fh1 < 0) { eexit("Cannot open first file"); }
-	void *f1 = mmap(NULL, size, PROT_READ, MAP_PRIVATE, fh1, 0);
-	if (f1 == MAP_FAILED) { eexit("Cannot map first file"); }
+	int fd1 = open(argv[1], O_RDWR, 0);
+	if (fd1 < 0) { eexit("Cannot open first file"); }
+	void *fm1 = mmap(NULL, size, PROT_READ, MAP_PRIVATE, fd1, 0);
+	if (fm1 == MAP_FAILED) { eexit("Cannot map first file"); }
 
-	int fh2 = open(argv[2], O_RDWR, 0);
-	if (fh2 < 0) { eexit("Cannot open second file"); }
-	void *f2 = mmap(NULL, size, PROT_READ, MAP_PRIVATE, fh2, 0);
-	if (f2 == MAP_FAILED) { eexit("Cannot map second file"); }
+	int fd2 = open(argv[2], O_RDWR, 0);
+	if (fd2 < 0) { eexit("Cannot open second file"); }
+	void *fm2 = mmap(NULL, size, PROT_READ, MAP_PRIVATE, fd2, 0);
+	if (fm2 == MAP_FAILED) { eexit("Cannot map second file"); }
 
 	// One thread per processor core and one file chunk per thread
 	omp_set_num_threads(omp_get_num_procs());
@@ -61,7 +61,7 @@ int main(int argc, char *argv[]) {
 		size_t offset = s+chunk > size ? chunk-((s+chunk)-size) : chunk;
 
 		// Force exit if the current chunk differs
-		if (memcmp(f1+s, f2+s, offset) != 0) _exit(EXIT_DIFF);
+		if (memcmp(fm1+s, fm2+s, offset) != 0) _exit(EXIT_DIFF);
 	}
 
 	// Both files are equal!
