@@ -60,7 +60,7 @@ int main(int argc, char *argv[]) {
 	for (size_t s=0; s<size; s+=chunk) {
 		size_t offset = s+chunk > size ? chunk-((s+chunk)-size) : chunk;
 
-		// Force exit if the current chunk differs
+		// Force exit if the current chunks differ
 		if (memcmp(fm1+s, fm2+s, offset) != 0) _exit(EXIT_DIFF);
 	}
 
