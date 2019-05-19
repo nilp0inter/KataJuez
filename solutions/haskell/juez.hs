@@ -13,6 +13,9 @@ import System.Posix.Files
 import System.Posix.Types
 import Control.Monad
 
+exitEqual = exitSuccess
+exitDiff  = exitWith $ ExitFailure 1
+exitFail  = exitWith $ ExitFailure 255
 
 equalSize :: String -> String -> IO Bool
 equalSize path1 path2 = do
@@ -40,11 +43,11 @@ main = do
     if (length args) /= 2
     then do
       putStrLn "Usage: juez <file1> <file2>"
-      exitWith $ ExitFailure 255
+      exitFail
     else do
       let path1 = args !! 0
       let path2 = args !! 1
       areEqual <- equalFiles path1 path2
       if areEqual
-      then exitSuccess
-      else exitFailure
+      then exitEqual
+      else exitDiff
