@@ -18,7 +18,7 @@ def compare_chunk(fd1, fd2, start, end, finish):
     for i in range(start, end, mmap.PAGESIZE):
         s = slice(i, min(i + mmap.PAGESIZE, finish))
         if map1[s] != map2[s]:
-            raise ValueError('Chunk differs!')
+            raise ValueError('Chunks differ!')
 
 
 if __name__ == '__main__':
